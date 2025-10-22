@@ -1,7 +1,10 @@
 import React, { createContext, useReducer, useEffect } from 'react';
 import AppReducer from "./AppReducer";
 
-// Initial state
+const API_URL = process.env.NODE_ENV === 'production'
+  ? '/api/transactions'
+  : 'http://localhost:5001/api/transactions';
+
 const initialState = {
   transactions: [],
   loading: true,
@@ -12,10 +15,8 @@ const initialState = {
   }
 };
 
-// Create context
 export const GlobalContext = createContext(initialState);
 
-// Provider component
 export const GlobalProvider = ({children}) => {
     const [state, dispatch] = useReducer(AppReducer, initialState);
 
@@ -25,9 +26,9 @@ export const GlobalProvider = ({children}) => {
 
     async function getTransactions() {
         try {
-            const res = await fetch('/api/transactions');
+            const res = await fetch(API_URL);
             const data = await res.json();
-            
+
             dispatch({
                 type: 'GET_TRANSACTIONS',
                 payload: data.data
@@ -42,10 +43,10 @@ export const GlobalProvider = ({children}) => {
 
     async function deleteTransaction(id) {
         try {
-            await fetch(`/api/transactions/${id}`, {
+            await fetch(`${API_URL}/${id}`, {
                 method: 'DELETE'
             });
-            
+
             dispatch({
                 type: 'DELETE_TRANSACTION',
                 payload: id
@@ -68,9 +69,9 @@ export const GlobalProvider = ({children}) => {
         };
 
         try {
-            const res = await fetch('/api/transactions', config);
+            const res = await fetch(API_URL, config);
             const data = await res.json();
-            
+
             dispatch({
                 type: 'ADD_TRANSACTION',
                 payload: data.data
@@ -101,4 +102,4 @@ export const GlobalProvider = ({children}) => {
     }}>
         {children}
     </GlobalContext.Provider>);
-} 
+}
